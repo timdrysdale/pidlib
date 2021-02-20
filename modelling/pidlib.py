@@ -89,7 +89,6 @@ if __name__ == "__main__":
     i.setpoint(0.0)
     err = 0.1
     for step in range(1,51):
-        print(step)
         expected = -1.0 * step * err  *Ts * Ki
         actual =i.update(err)
         assert math.isclose(expected, actual)
@@ -104,5 +103,30 @@ if __name__ == "__main__":
     actual = i.update(0.0) #grace of one step due to error history
     actual = i.update(0.0)
     assert math.isclose(0, actual)
+    
+    #repeat, this time pass zero and check no windup
+    i = PID(0.0,Ki,0.0,0.02,20,-1,1)
+    i.setpoint(0.0)
+    err = 0.1
+    for step in range(1,51):
+        expected = -1.0 * step * err  *Ts * Ki
+        actual =i.update(err)
+        assert math.isclose(expected, actual)
+    
+    #now at limit
+    expected = -1.0 * step * err  *Ts * Ki
+    for step in range(1,50):
+        actual = i.update(err)
+        assert math.isclose(expected, actual)
+    print(actual) 
+    # check that integral term is zero'd after reaching setpoint    
+    actual = i.update(-0.1)
+    print(exp,actual)#grace of one step due to error history
+    actual = i.update(-0.1)
+    exp = err  *Ts * Ki
+    print(exp,actual)
+    assert math.isclose(exp, actual)
+    
+    
 
         
