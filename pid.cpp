@@ -1,20 +1,20 @@
 #include "pid.h"
 
-
-//PID::PID(float Kp, float Ki, float Kd, float Ts) {
-//  return PID(Kp, Ki, Kd, Ts, 20);
-//}
-
-PID::PID(float Kp, float Ki, float Kd, float Ts, float N, float plantMin, float plantMax) {
-  setAll(Kp, Ki, Kd, Ts, N, plantMin, plantMax);
+PID::PID(float Kp, float Ki, float Kd, float Ts, float N, float uMin, float uMax) {
+  setAll(Kp, Ki, Kd, Ts, N, uMin, uMax);
 }
 
-void PID::setAll(float Kp, float Ki, float Kd, float Ts, float N, float plantMin, float plantMax) {
+void PID::setAll(float Kp, float Ki, float Kd, float Ts, float N, float uMin, float uMax) {
 
   reset();
 
-  uMin = plantMin;
-  uMax = plantMax;
+  _Kp = Kp;
+  _Ki = Ki;
+  _Kd = Kd;
+  _Ts = Ts;
+  _N = N;
+  _uMin = uMin;
+  _uMax = uMax;
 
   a0 = (1+N*Ts);
   a1 = -(2 + N*Ts);
@@ -61,9 +61,74 @@ float PID::update(float y){
   
   u0 = -ku1*u1 - ku2*u2 + ke0*e0 + ke1*e1 + ke2*e2; //eq(12)
 
-  if (u0 > uMax) u0 = uMax; //limit to plant range
-  if (u0 < uMin) u0 = uMin;
+  if (u0 > _uMax) u0 = _uMax; //limit to plant range
+  if (u0 < _uMin) u0 = _uMin;
 
   return u0;
 
+}
+
+void PID::setKs(float Kp, float Ki, float Kd) {
+  setAll(Kp, Ki, Kd, _Ts, _N, _uMin, _uMax);
+}
+
+void PID::setKp(float Kp) {
+  setAll(Kp, _Ki, _Kd, _Ts, _N, _uMin, _uMax);
+}
+
+void PID::setKi(float Ki) {
+  setAll(_Kp, Ki, _Kd, _Ts, _N, _uMin, _uMax);
+}
+
+void PID::setKd(float Kd) {
+  setAll(_Kp, _Ki, Kd, _Ts, _N, _uMin, _uMax);
+}
+
+void PID::setTs(float Ts) {
+  setAll(_Kp, _Ki, _Kd, Ts, _N, _uMin, _uMax);
+}
+
+void PID::setN(float N) {
+  setAll(_Kp, _Ki, _Kd, _Ts, N, _uMin, _uMax);
+}
+
+void PID::setLimits(float uMin, float uMax) {
+  setAll(_Kp, _Ki, _Kd, _Ts, _N, uMin, uMax);
+}
+
+float PID::getKp(void) {
+  return _Kp;
+}
+float PID::getKi(void){
+  return _Ki;
+}
+
+float PID::getKd(void) {
+  return _Kd;
+}
+
+float PID::getTs(void){
+  return _Ts;
+}
+float PID::getN(void) {
+  return _N;
+}
+
+float PID::getUMax(void) {
+  return _uMax;
+}
+
+float PID::getUMin(void) {
+  return _uMin;
+}
+
+bool PID::hasZeroHistory(void){
+  return (
+		  e0 == 0 &&
+		  e1 == 0 &&
+		  e2 == 0 &&
+		  u0 == 0 &&
+		  u1 == 0 &&
+		  u2 == 0   
+		  );
 }

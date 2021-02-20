@@ -174,6 +174,101 @@ TEST(PIDTest, derivative) {
 }
 
 
+TEST(PIDTest, setget) {
+
+  float Kp = 1.0;
+  float Ki = 2.0;
+  float Kd = 3.0; 
+  float Ts = 0.02;
+  float N = 20;
+  float uMin = -1;
+  float uMax = 1;
+  
+  PID controller = PID(Kp,Ki,Kd,Ts,N,uMin,uMax);
+
+  EXPECT_FLOAT_EQ(Kp, controller.getKp());
+  EXPECT_FLOAT_EQ(Ki, controller.getKi());
+  EXPECT_FLOAT_EQ(Kd, controller.getKd());
+  EXPECT_FLOAT_EQ(Ts, controller.getTs());
+  EXPECT_FLOAT_EQ(N, controller.getN());
+  EXPECT_FLOAT_EQ(uMin, controller.getUMin());
+  EXPECT_FLOAT_EQ(uMax, controller.getUMax());
+
+  EXPECT_TRUE(controller.hasZeroHistory());
+  controller.setCommand(1.0);
+  controller.update(-1.0);
+  EXPECT_FALSE(controller.hasZeroHistory());
+
+  Kp = 4.0;
+  Ki = 5.0;
+  Kd = 6.0;
+  
+  controller.setKs(Kp,Ki,Kd);
+  EXPECT_FLOAT_EQ(Kp, controller.getKp());
+  EXPECT_FLOAT_EQ(Ki, controller.getKi());
+  EXPECT_FLOAT_EQ(Kd, controller.getKd());
+  
+  EXPECT_TRUE(controller.hasZeroHistory());
+  controller.setCommand(1.0);
+  controller.update(-1.0);
+  EXPECT_FALSE(controller.hasZeroHistory());
+
+  Kp = 7.0;
+  controller.setKp(Kp);
+  EXPECT_FLOAT_EQ(Kp, controller.getKp());
+  EXPECT_TRUE(controller.hasZeroHistory());
+  controller.setCommand(1.0);
+  controller.update(-1.0);
+  EXPECT_FALSE(controller.hasZeroHistory());  
+  
+  Ki = 8.0;
+  controller.setKi(Ki);
+  EXPECT_FLOAT_EQ(Ki, controller.getKi());
+  EXPECT_TRUE(controller.hasZeroHistory());
+  controller.setCommand(1.0);
+  controller.update(-1.0);
+  EXPECT_FALSE(controller.hasZeroHistory());
+
+  Kd = 9.0;
+  controller.setKd(Kd);
+  EXPECT_FLOAT_EQ(Kd, controller.getKd());
+  EXPECT_TRUE(controller.hasZeroHistory());
+  controller.setCommand(1.0);
+  controller.update(-1.0);
+  EXPECT_FALSE(controller.hasZeroHistory());
+
+  Ts = 0.001;
+  controller.setTs(Ts);
+  EXPECT_FLOAT_EQ(Ts, controller.getTs());
+  EXPECT_TRUE(controller.hasZeroHistory());
+  controller.setCommand(1.0);
+  controller.update(-1.0);
+  EXPECT_FALSE(controller.hasZeroHistory());
+
+  N = 30;
+  controller.setN(N);
+  EXPECT_FLOAT_EQ(N, controller.getN());
+  EXPECT_TRUE(controller.hasZeroHistory());
+  controller.setCommand(1.0);
+  controller.update(-1.0);
+  EXPECT_FALSE(controller.hasZeroHistory());
+
+  uMin = -2;
+  uMax = 3;
+  controller.setLimits(uMin,uMax);
+  EXPECT_FLOAT_EQ(uMin, controller.getUMin());
+  EXPECT_FLOAT_EQ(uMax, controller.getUMax());  
+  EXPECT_TRUE(controller.hasZeroHistory());
+  controller.setCommand(1.0);
+  controller.update(-1.0);
+  EXPECT_FALSE(controller.hasZeroHistory());  
+
+}
+
+
+
+
+
 int main(int argc, char **argv) {
     testing::InitGoogleTest(&argc, argv);
     return RUN_ALL_TESTS();

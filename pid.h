@@ -20,24 +20,22 @@ class PID {
   
   double r; // current command (desired plant output)
 
-  double uMin, uMax; //plant limits
-
   // These parameters are user-adjustable
   // Derived parameters in difference equation must be recalculated
   // when these are changed.
 
-  double Kp;    // proportional gain
-  double Ki;    // integral gain
-  double Kd;    //  derivative gain
-  double N;     // filter coefficients e.g. 20
-  double Ts;   // This must match actual sampling time PID, in seconds e.g. 0.02 for 50Hz
-
+  double _Kp;    // proportional gain
+  double _Ki;    // integral gain
+  double _Kd;    //  derivative gain
+  double _N;     // filter coefficients e.g. 20
+  double _Ts;   // This must match actual sampling time PID, in seconds e.g. 0.02 for 50Hz
+  double _uMin, _uMax; //plant limits
+  
   void reset(void); // set* commands will call this whenever any changes warrant it
   
  public:
-  //PID(float Kp, float Ki, float Kd, float Ts);
-  PID(float Kp, float Ki, float Kd, float Ts, float N, float plantMin, float plantMax);
-  void setAll(float Kp, float Ki, float Kd, float Ts, float N, float plantMin, float plantMax);
+  PID(float Kp, float Ki, float Kd, float Ts, float N, float uMin, float uMax);
+  void setAll(float Kp, float Ki, float Kd, float Ts, float N, float uMin, float uMax);
   void setKs(float Kp, float Ki, float Kd);
   void setKp(float Kp);
   void setKi(float Ki);
@@ -48,8 +46,11 @@ class PID {
   float getKp(void);
   float getKi(void);
   float getKd(void);
-  float getDt(void);
+  float getTs(void);
   float getN(void);
+  float getUMax(void);
+  float getUMin(void);
+  bool hasZeroHistory(void); //helper for testing
   void setCommand(float command); //r is desired plant output
   float update(float y);     //y is actual plant output
   
