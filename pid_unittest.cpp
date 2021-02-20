@@ -17,8 +17,8 @@ TEST(PIDTest, atSetPoint) {
 	  float y = controller.update(0.5);
 	  EXPECT_FLOAT_EQ(0.0, y );
   }
-
 }
+
 
 TEST(PIDTest, limit) {
   float Ts = 0.02;
@@ -29,8 +29,8 @@ TEST(PIDTest, limit) {
   
   float y = controller.update(-2);
   EXPECT_FLOAT_EQ(1.0, y);
-
 }
+
 
 TEST(PIDTest, proportional) {
   float Ts = 0.02;
@@ -53,8 +53,8 @@ TEST(PIDTest, proportional) {
 	  float exp = setpoint - plant;
 	  EXPECT_FLOAT_EQ(exp, y );
   }
-
 }
+
 
 TEST(PIDTest, integral) {
 
@@ -125,8 +125,8 @@ TEST(PIDTest, integral) {
   // due to history it won't be exactly one integral step
   // let it be up to two of them ...
   EXPECT_TRUE((y > 0) && (y <= 2 * oneIntegralStep));
-  
 }
+
 
 TEST(PIDTest, derivative) {
 
@@ -262,11 +262,7 @@ TEST(PIDTest, setget) {
   controller.setCommand(1.0);
   controller.update(-1.0);
   EXPECT_FALSE(controller.hasZeroHistory());  
-
 }
-
-
-
 
 
 int main(int argc, char **argv) {
