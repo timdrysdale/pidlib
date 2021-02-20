@@ -49,6 +49,11 @@ class PID:
         self.u1=self.u0;
             
         self.e0=self.r-y; #compute new error
+        
+        if (self.e0 * self.e1 <= 0):
+            self.u1 = 0;
+            self.u2 = 0;
+        
         self.u0 = ( -1*self.ku1*self.u1  
                 - self.ku2*self.u2
                 + self.ke0*self.e0 
@@ -59,18 +64,45 @@ class PID:
             self.u0 = self.uMax; 
         if (self.u0 < self.uMin):
             self.u0 = self.uMin;
-            
+        
+        #print(self.u1,self.u2,self.e0,self.e1,self.e2)
         return self.u0;
     
     
 if __name__ == "__main__":
+    
+    import math
+    import numpy as np
+    
+    Ts = 0.02
+    N = 20
+    
+    p = PID(1.0,0.0,0.0,Ts,N,-1,1)
+    p.setpoint(0.0)
+    assert p.update(0.0) == 0.0
+    assert p.update(0.5) == -0.5
+    assert p.update(1.0) == -1.0
+    assert p.update(2.0) == -1.0 #limit
+    
+    Ki = 10
+    i = PID(0.0,Ki,0.0,0.02,20,-1,1)
+    i.setpoint(0.0)
+    err = 0.1
+    for step in range(1,51):
+        print(step)
+        expected = -1.0 * step * err  *Ts * Ki
+        actual =i.update(err)
+        assert math.isclose(expected, actual)
+    
+    #now at limit
+    expected = -1.0 * step * err  *Ts * Ki
+    for step in range(1,50):
+        actual = i.update(err)
+        assert math.isclose(expected, actual)
+     
+    # check that integral term is zero'd after reaching setpoint    
+    actual = i.update(0.0) #grace of one step due to error history
+    actual = i.update(0.0)
+    assert math.isclose(0, actual)
 
-    pid = PID(1.0,0.0,0.0,0.02,20,-1,1)
-    pid.setpoint(0.0)
-    assert pid.update(0.0) == 0.0
-    assert pid.update(0.5) == -0.5
-    assert pid.update(1.0) == -1.0
-    assert pid.update(2.0) == -1.0 #limit
-    
-    
-    
+        

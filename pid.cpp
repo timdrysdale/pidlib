@@ -52,6 +52,13 @@ float PID::update(float y){
   u1=u0;
 
   e0=r-y; //compute new error
+
+  // https://en.wikipedia.org/wiki/Integral_windup
+  if ( (e0 * e1) <= 0) { //reset integrator on zero crossing
+	u1 = 0;
+	u2 = 0;
+  }
+  
   u0 = -ku1*u1 - ku2*u2 + ke0*e0 + ke1*e1 + ke2*e2; //eq(12)
 
   if (u0 > uMax) u0 = uMax; //limit to plant range
