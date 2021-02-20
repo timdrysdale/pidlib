@@ -74,6 +74,7 @@ if __name__ == "__main__":
     import math
     import numpy as np
     
+    # PROPORTIONAL TEST
     Ts = 0.02
     N = 20
     
@@ -84,6 +85,7 @@ if __name__ == "__main__":
     assert p.update(1.0) == -1.0
     assert p.update(2.0) == -1.0 #limit
     
+    # INTEGRAL TEST
     Ki = 10
     i = PID(0.0,Ki,0.0,0.02,20,-1,1)
     i.setpoint(0.0)
@@ -118,14 +120,42 @@ if __name__ == "__main__":
     for step in range(1,50):
         actual = i.update(err)
         assert math.isclose(expected, actual)
-    print(actual) 
+
     # check that integral term is zero'd after reaching setpoint    
     actual = i.update(-0.1)
-    print(exp,actual)#grace of one step due to error history
-    actual = i.update(-0.1)
-    exp = err  *Ts * Ki
-    print(exp,actual)
-    assert math.isclose(exp, actual)
+    assert (actual > 0 and actual <= 2 * err  *Ts * Ki)
+    
+    # DERIVATIVE TEST
+    Kd = 1.0 
+    Ts = 0.02
+    N = 20
+    d = PID(0.0,0.0,Kd,Ts,N,-1,1)
+    setpoint = 0.0
+    d.setpoint(setpoint)
+    d.update(setpoint)
+    
+    deltaPlant = 0.01
+    plant = setpoint
+    deltaY = 0
+    lastDeltaY = 0
+    lastY = 0
+    y = 0
+    for step in range(1,90):
+        plant = plant + deltaPlant
+        lastdeltaY = deltaY
+        lastY = y
+        y = d.update(plant)
+        lastDeltaY = deltaY
+        deltaY = y - lastY
+        if (step > 1):
+            assert (y < lastY) #monotonic behaviour
+        if (step > 2):    
+            print(deltaY, lastDeltaY)
+            assert (deltaY > lastDeltaY) #asymptotic approaching steady state
+       
+    expected = -1 * deltaPlant/ Ts
+    assert math.isclose(expected, y)
+    
     
     
 

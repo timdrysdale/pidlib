@@ -21,8 +21,9 @@ TEST(PIDTest, atSetPoint) {
 }
 
 TEST(PIDTest, limit) {
-
-  PID controller = PID(1.0,0.0,0.0,0.02,0.0,-1,1);
+  float Ts = 0.02;
+  float N = 20;
+  PID controller = PID(1.0,0.0,0.0,Ts,N,-1,1);
 
   controller.setCommand(2);
   
@@ -32,8 +33,9 @@ TEST(PIDTest, limit) {
 }
 
 TEST(PIDTest, proportional) {
-
-  PID controller = PID(1.0,0.0,0.0,0.02,0.0,-1,1);
+  float Ts = 0.02;
+  float N = 20; 
+  PID controller = PID(1.0,0.0,0.0,Ts,N,-1,1);
 
   float setpoint = 0.5;
   
@@ -58,7 +60,8 @@ TEST(PIDTest, integral) {
 
   float Ts = 0.02;
   float Ki = 10.0;
-  PID controller = PID(0.0,Ki,0.0,Ts,0.0,-1,1);
+  float N = 0; //with N >0 there is a small difference which would require a tolerance on the equality test
+  PID controller = PID(0.0,Ki,0.0,Ts,N,-1,1);
 
   float setpoint = 0.0;
   
@@ -123,6 +126,51 @@ TEST(PIDTest, integral) {
   // let it be up to two of them ...
   EXPECT_TRUE((y > 0) && (y <= 2 * oneIntegralStep));
   
+}
+
+TEST(PIDTest, derivative) {
+
+  float Ts = 0.02;
+  float Kd = 1.0;
+  float N = 20;
+  PID controller = PID(0.0,0.0,Kd,Ts,N,-1,1);
+
+  float setpoint = 0.0;
+  
+  controller.setCommand(setpoint);
+  
+  float y = controller.update(setpoint);
+
+  EXPECT_FLOAT_EQ(0.0, y);
+  
+  float deltaPlant = 0.01;
+  float plant = 0;
+  float deltaY = 0;
+  float lastDeltaY = 0;
+  float lastY = 0;
+
+  // low pass filter has a transient response
+  // check that it is monotonic and asymptotic
+  // then check steady state derivative is as expected
+  for (int i = 1; i < 91; ++i)
+  {
+	plant += deltaPlant;
+	lastDeltaY = deltaY;
+	lastY = y;
+	y = controller.update(plant);
+	lastDeltaY = deltaY;
+	deltaY = y - lastY;
+
+	if (deltaY > 1e-6 && i > 2) {
+	  EXPECT_TRUE(y < lastY) << i << ":" << plant << ":" << y << ":" << lastY; //monotonic
+	  EXPECT_TRUE(deltaY >= lastDeltaY) << i << ":"<< deltaY << ":" << lastDeltaY; //asymptotic
+	}
+  }
+
+  // Should be at the steady state now, so 
+  // check that output is the expected derivative
+  float expected = -1 * deltaPlant / Ts;
+  EXPECT_TRUE(abs(expected-y)<1e-4);
 }
 
 
