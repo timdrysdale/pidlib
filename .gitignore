@@ -1,3 +1,16 @@
+# Emacs
+*~
+
+#Cmake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+#gTest
+runTests
+
+
 # Prerequisites
 *.d
 
@@ -30,3 +43,4 @@
 *.exe
 *.out
 *.app
+
