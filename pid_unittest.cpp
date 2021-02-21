@@ -261,7 +261,12 @@ TEST(PIDTest, setget) {
   EXPECT_TRUE(controller.hasZeroHistory());
   controller.setCommand(1.0);
   controller.update(-1.0);
-  EXPECT_FALSE(controller.hasZeroHistory());  
+  EXPECT_FALSE(controller.hasZeroHistory());
+
+
+  float r = 1.75;
+  controller.setCommand(r);
+  EXPECT_FLOAT_EQ(r, controller.getCommand());
 }
 
 

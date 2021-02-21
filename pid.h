@@ -52,6 +52,7 @@ class PID {
   float getUMin(void);
   bool hasZeroHistory(void); //helper for testing
   void setCommand(float command); //r is desired plant output
+  float getCommand(void);
   float update(float y);     //y is actual plant output
   
 };

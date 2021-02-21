@@ -43,6 +43,11 @@ void PID::setCommand(float command) {
   r = command;
 }
 
+float PID::getCommand(void) {
+  return r;
+}
+
+
 float PID::update(float y){
 
   // shift history
